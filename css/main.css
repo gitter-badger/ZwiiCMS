@@ -1,0 +1,118 @@
+@import url(http://fonts.googleapis.com/css?family=Noto+Sans|Fjalla+One);
+
+html,
+body {
+	height: 100%;
+}
+body {
+	font-family: "Noto Sans", sans-serif;
+	font-size: 18px;
+	text-align: center;
+}
+h1,
+h2,
+p {
+	max-width: 600px;
+	margin: 20px auto;
+}
+h1,
+h2 {
+	font-family: "Fjalla One", sans-serif;
+	font-weight: normal;
+}
+h1 {
+	font-size: 5em;
+	letter-spacing: 2px;
+}
+h2 {
+	font-size: 2em;
+	letter-spacing: 1px;
+}
+a {
+	text-decoration: none;
+}
+
+/**
+ * Couverture
+ */
+
+#cover {
+	background: url(images/background.jpg) no-repeat center top / cover;
+	color: #FFF;
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	display: table;
+}
+#cover > .row {
+	display: table-row;
+}
+#cover > .row > div {
+	display: table-cell;
+}
+#cover > .row > div#title {
+	vertical-align: middle;
+}
+#cover > .row > div#title > h1,
+#cover > .row > div#title > p {
+	text-shadow: 2px 2px 3px rgba(0, 0, 0, .8);
+}
+#cover > .row > div#title > a {
+	background: rgba(0, 141, 171, .8);
+	color: #FFF;
+	font-size: 1.2em;
+	padding: 20px 30px;
+	display: inline-block;
+	border-radius: 3px;
+}
+#cover > .row > div#title > a:hover {
+	background: rgba(0, 112, 140, .8);
+}
+#cover > .row > div#title > a > span {
+	font-size: .6em;
+	display: block;
+}
+
+#cover > .row > div#social {
+	vertical-align: bottom;
+	padding-bottom: 20px;
+}
+
+#cover > .row > div#social > a {
+	background: url(images/social.png);
+	opacity: .6;
+	width: 48px;
+	height: 48px;
+	display: inline-block;
+}
+#cover > .row > div#social > a:hover {
+	opacity: 1;
+}
+#cover > .row > div#social > a#github {
+	background-position: -2px 0;
+}
+#cover > .row > div#social > a#mail {
+	background-position: -2px -50px;
+}
+#cover > .row > div#social > a#twitter {
+	background-position: -2px -100px;
+}
+
+/**
+ * Contenu
+ */
+
+#container {
+	background: #FFF;
+	color: #444;
+	font-size: .9em;
+	width: 100%;
+	top: 100%;
+	position: absolute;
+	z-index: 5;
+	box-shadow: 0 0 15px rgba(0, 0, 0, .6);
+}
+#container > .row {
+	margin: 100px 0;
+	position: relative;
+}
