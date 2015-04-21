@@ -31,10 +31,6 @@ h2 {
 }
 a {
 	text-decoration: none;
-	color: #00708C;
-}
-a:hover {
-	text-decoration: underline;
 }
 
 /**
@@ -137,6 +133,12 @@ a:hover {
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
+}
+#container > p >a {
+	color: #00708C;
+}
+#container > p > a:hover {
+	text-decoration: underline;
 }
 #container > hr {
 	border: 0;
