@@ -27,7 +27,7 @@ class core
 	public static $description = false;
 	public static $content = false;
 
-	const VERSION = '7.1.4';
+	const VERSION = '7.1.4d';
 
 	public function __construct()
 	{
@@ -37,6 +37,12 @@ class core
 		$this->url = explode('/', $this->url);
 		$this->error = empty($_SESSION['ERROR']) ? false : $_SESSION['ERROR'];
 		$this->success = empty($_SESSION['SUCCESS']) ? false : $_SESSION['SUCCESS'];
+		// Restauration automatique de la démo tous les 2 jours
+		if(!$this->getData('backup') OR $this->getData('backup') > time()) {
+			$backup = json_decode(file_get_contents('core/backup.json'), true);
+			$backup['backup'] = time() + (86400 * 2);
+			file_put_contents('core/data.json', json_encode($backup));
+		}
 	}
 
 	/**
@@ -569,22 +575,10 @@ class core
 	public function config()
 	{
 		if($this->getPost('submit')) {
-			if($this->getPost('password')) {
-				if($this->getPost('password') === $this->getPost('confirm')) {
-					$password = $this->getPost('password', helpers::PASSWORD);
-				}
-				else {
-					$password = $this->getData('config', 'password');
-					template::$notices['confirm'] = 'La confirmation ne correspond pas au nouveau mot de passe';
-				}
-			}
-			else {
-				$password = $this->getData('config', 'password');
-			}
 			$this->setData('config', [
 				'title' => $this->getPost('title', helpers::STRING),
 				'description' => $this->getPost('description', helpers::STRING),
-				'password' => $password,
+				'password' => $this->getData('config', 'password'),
 				'index' => $this->getPost('index', helpers::STRING),
 				'theme' => $this->getPost('theme', helpers::STRING)
 			]);
@@ -611,7 +605,7 @@ class core
 			template::closeRow() .
 			template::openRow() .
 			template::password('password', [
-				'label' => 'Nouveau mot de passe',
+				'label' => 'Nouveau mot de passe (inactif dans la démo)',
 				'col' => 6
 			]) .
 			template::password('confirm', [
@@ -680,6 +674,7 @@ class core
 			template::openForm() .
 			template::openRow() .
 			template::password('password', [
+				'label' => 'Mot de passe : <strong>password</strong>',
 				'col' => 4
 			]) .
 			template::closeRow() .
