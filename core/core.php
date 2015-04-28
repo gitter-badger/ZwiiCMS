@@ -38,10 +38,11 @@ class core
 		$this->error = empty($_SESSION['ERROR']) ? false : $_SESSION['ERROR'];
 		$this->success = empty($_SESSION['SUCCESS']) ? false : $_SESSION['SUCCESS'];
 		// Restauration automatique de la démo tous les 2 jours
-		if(!$this->getData('backup') OR $this->getData('backup') > time()) {
+		if(!$this->getData('backup') OR time() > $this->getData('backup')) {
 			$backup = json_decode(file_get_contents('core/backup.json'), true);
 			$backup['backup'] = time() + (86400 * 2);
 			file_put_contents('core/data.json', json_encode($backup));
+			$this->saveData(true);
 		}
 	}
 
