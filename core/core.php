@@ -6,7 +6,7 @@
  * For full copyright and license information, please see the LICENSE
  * file that was distributed with this source code.
  *
- * @author Rémi Jean <remi-jean@outlook.com>
+ * @author Rémi Jean <remi.jean@outlook.com>
  * @copyright Copyright (C) 2008-2015, Rémi Jean
  * @license GNU General Public License, version 3
  * @link http://zwiicms.com/
@@ -27,7 +27,7 @@ class core
 	public static $description = false;
 	public static $content = false;
 
-	const VERSION = '7.1.4d';
+	const VERSION = '7.1.5d';
 
 	public function __construct()
 	{
@@ -43,6 +43,18 @@ class core
 			$backup['backup'] = time() + (86400 * 2);
 			file_put_contents('core/data.json', json_encode($backup));
 			$this->saveData(true);
+		}
+	}
+
+	/**
+	 * Auto-chargement des classes
+	 * @param $className string Nom de la classe à charger
+	 */
+	public static function autoload($className)
+	{
+		$classPath = 'modules/' . substr($className, 0, -3) . '.php';
+		if(is_readable($classPath)) {
+			require $classPath;
 		}
 	}
 
@@ -77,7 +89,10 @@ class core
 	 */
 	public function setData($key1, $key2, $key3 = null)
 	{
-		if($key3 !== null) {
+		if(template::$notices) {
+			return false;
+		}
+		elseif($key3 !== null) {
 			$this->data[$key1][$key2] = $key3;
 		}
 		else {
@@ -204,12 +219,12 @@ class core
 	/**
 	 * Modifie la notification
 	 * @param string $notification Notification
+	 * @param bool $error Message d'erreur ou non
 	 */
 	public function setNotification($notification, $error = false)
 	{
 		if(!template::$notices) {
-			$type = $error ? 'ERROR' : 'SUCCESS';
-			$_SESSION[$type] = $notification;
+			$_SESSION[$error ? 'ERROR' : 'SUCCESS'] = $notification;
 		}
 	}
 
@@ -436,28 +451,24 @@ class core
 				'value' => $this->getData('pages', $this->getUrl(1), 'title'),
 				'required' => true
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::text('position', [
-				'label' => 'Position dans le menu',
+				'label' => 'Position dans le menu' . template::help('Le classement se fait par ordre croissant. Si le champ est vide, la page ne s\'affiche pas dans le menu.'),
 				'value' => $this->getData('pages', $this->getUrl(1), 'position')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::textarea('content', [
 				'value' => $this->getData('pages', $this->getUrl(1), 'content'),
 				'class' => 'editor'
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::textarea('description', [
-				'label' => 'Description de la page <small>(si le champ est vide, la description du site est utilisée)</small>',
+				'label' => 'Description de la page' . template::help('Si le champ est vide, la description du site est utilisée.'),
 				'value' => $this->getData('pages', $this->getUrl(1), 'description')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::select('module', helpers::listModules('Aucun module'), [
-				'label' => 'Inclure un module <small>(en cas de changement de module, les données rattachées au module précédant seront supprimées)</small>',
+				'label' => 'Inclure un module' . template::help('En cas de changement de module, les données rattachées au module précédant seront supprimées.'),
 				'selected' => $this->getData('pages', $this->getUrl(1), 'module'),
 				'col' => 10
 			]) .
@@ -467,19 +478,16 @@ class core
 				'disabled' => $this->getData('pages', $this->getUrl(1), 'module') ? false : true,
 				'col' => 2
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::select('theme', helpers::listThemes('Thème par défaut'), [
 				'label' => 'Thème en mode public',
 				'selected' => $this->getData('pages', $this->getUrl(1), 'theme')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::checkbox('blank', true, 'Ouvrir dans un nouvel onglet en mode public', [
 				'checked' => $this->getData('pages', $this->getUrl(1), 'blank')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::button('delete', [
 				'value' => 'Supprimer',
 				'href' => '?delete/' . $this->getUrl(1),
@@ -596,15 +604,13 @@ class core
 				'required' => true,
 				'value' => $this->getData('config', 'title')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::textarea('description', [
 				'label' => 'Description du site',
 				'required' => true,
 				'value' => $this->getData('config', 'description')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::password('password', [
 				'label' => 'Nouveau mot de passe (inactif dans la démo)',
 				'col' => 6
@@ -613,29 +619,25 @@ class core
 				'label' => 'Confirmation du mot de passe',
 				'col' => 6
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::select('index', helpers::arrayCollumn($this->getData('pages'), 'title', 'SORT_ASC', true), [
 				'label' => 'Page d\'accueil',
 				'required' => true,
 				'selected' => $this->getData('config', 'index')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::select('theme', helpers::listThemes(), [
 				'label' => 'Thème par défaut',
 				'required' => true,
 				'selected' => $this->getData('config', 'theme')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::text('version', [
 				'label' => 'Version de ZwiiCMS',
 				'value' => self::VERSION,
 				'disabled' => true
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::button('clean', [
 				'value' => 'Vider le cache',
 				'href' => '?clean',
@@ -678,11 +680,9 @@ class core
 				'label' => 'Mot de passe : <strong>password</strong>',
 				'col' => 4
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::checkbox('time', true, 'Me connecter automatiquement lors de mes prochaines visites.').
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::submit('submit', [
 				'value' => 'Me connecter',
 				'col' => 2
@@ -840,7 +840,7 @@ class helpers
 		}
 		$it = new DirectoryIterator('themes/');
 		foreach($it as $file) {
-			if($file->isFile()) {
+			if($file->isFile() AND $file->getExtension() === 'css') {
 				$themes[$file->getBasename()] = $file->getBasename('.css');
 			}
 		}
@@ -872,22 +872,65 @@ class helpers
 	}
 
 	/**
-	 * Redirige vers une page du site ou une page externe
+	 * Redirige vers une page du site ou une page externe et sauvegarde les données du formulaire si il existe des notices
 	 * @param string $url Url de destination
 	 * @param string $prefix Ajoute ou non un préfixe à l'url
 	 */
 	public static function redirect($url, $prefix = '?')
 	{
-		if(!template::$notices) {
+		if(template::$notices) {
+			template::$before = $_POST;
+		}
+		else {
 			header('location:' . $prefix . $url);
 			exit();
 		}
+	}
+
+	/**
+	 * Envoi un mail
+	 * @param string $from Expéditeur
+	 * @param string $to Destinataire
+	 * @param string $subject Sujet
+	 * @param string $message Message
+	 * @return bool	False en cas d'échec, sinon true
+	 */
+	public static function mail($from, $to, $subject, $message)
+	{
+		// Retour chariot différent pour les adresses Microsoft
+		$n = preg_match("#^[a-z0-9._-]+@(hotmail|live|msn|outlook).[a-z]{2,4}$#", $to) ? "\n" : "\r\n";
+		// Définition du séparateur
+		$boundary = '-----=' . md5(rand());
+		// Création du template
+		$html = '<html><head></head><body>' . $message . '</body></html>';
+		$txt = strip_tags($html);
+		// Définition du header
+		$header = 'From: ' . $from . $n;
+		$header .= 'Reply-To: ' . $to . $n;
+		$header .= 'MIME-Version: 1.0' . $n;
+		$header .= 'Content-Type: multipart/alternative;' . $n . ' boundary="' . $boundary . '"' . $n;
+		// Message au format texte
+		$message .= $n . '--' . $boundary . $n;
+		$message .= 'Content-Type: text/plain; charset="utf-8"' . $n;
+		$message .= 'Content-Transfer-Encoding: 8bit' . $n;
+		$message .= $n . $txt . $n;
+		// Message au format HTML
+		$message .= $n . '--' . $boundary . $n;
+		$message .= 'Content-Type: text/html; charset="utf-8"' . $n;
+		$message .= 'Content-Transfer-Encoding: 8bit' . $n;
+		$message .= $n . $html . $n;
+		// Fermeture des séparateurs
+		$message .= $n . '--' . $boundary . '--' . $n;
+		$message .= $n . '--' . $boundary . '--' . $n;
+		// Envoi du mail
+		return @mail($to, $subject, $message, $header);
 	}
 }
 
 class template
 {
 	static $notices = [];
+	static $before = [];
 
 	/**
 	 * Retourne une notice pour les champs obligatoires (à appeler après avoir vérifié que le champ est vide)
@@ -916,6 +959,15 @@ class template
 	}
 
 	/**
+	 * Valeur avant validation et erreur dans le formulaire
+	 * @param $nameId
+	 * @return bool|string Valeur avant validation si elle existe, sinon false
+	 */
+	private static function getBefore($nameId) {
+		return empty(self::$before[$nameId]) ? false : self::$before[$nameId];
+	}
+
+	/**
 	 * Retourne les attributs d'une balise au bon format
 	 * @param array $array Liste des attributs ($key => $value)
 	 * @param array $exclude Clés à ignorer ($key)
@@ -941,6 +993,15 @@ class template
 	public static function openRow()
 	{
 		return '<div class="row">';
+	}
+
+	/**
+	 * Ferme la ligne courante et ouvre une ligne
+	 * @return string La balise
+	 */
+	public static function newRow()
+	{
+		return '</div><div class="row">';
 	}
 
 	/**
@@ -1027,6 +1088,10 @@ class template
 
 		// Champ requis
 		self::setRequired($nameId, $attributes);
+		// Sauvegarde des données en cas d'erreur
+		if($value = self::getBefore($nameId)) {
+			$attributes['value'] = $value;
+		}
 
 		// Début col
 		$html = '<div class="col' . $attributes['col'] . ' offset' . $attributes['offset'] . '">';
@@ -1076,6 +1141,10 @@ class template
 
 		// Champ requis
 		self::setRequired($nameId, $attributes);
+		// Sauvegarde des données en cas d'erreur
+		if($value = self::getBefore($nameId)) {
+			$attributes['value'] = $value;
+		}
 
 		// Début col
 		$html = '<div class="col' . $attributes['col'] . ' offset' . $attributes['offset'] . '">';
@@ -1175,6 +1244,10 @@ class template
 
 		// Champ requis
 		self::setRequired($nameId, $attributes);
+		// Sauvegarde des données en cas d'erreur
+		if($selected = self::getBefore($nameId)) {
+			$attributes['selected'] = $selected;
+		}
 
 		// Début col
 		$html = '<div class="col' . $attributes['col'] . ' offset' . $attributes['offset'] . '">';
@@ -1381,5 +1454,15 @@ class template
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Crée une aide qui s'affiche au survole
+	 * @param string $text Texte de l'aide
+	 * @return string L'aide mise en forme
+	 */
+	public static function help($text)
+	{
+		return '<span class="helpButton">?<span class="helpContent">' . $text . '</span></span>';
 	}
 }

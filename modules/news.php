@@ -6,7 +6,7 @@
  * For full copyright and license information, please see the LICENSE
  * file that was distributed with this source code.
  *
- * @author Rémi Jean <remi-jean@outlook.com>
+ * @author Rémi Jean <remi.jean@outlook.com>
  * @copyright Copyright (C) 2008-2015, Rémi Jean
  * @license GNU General Public License, version 3
  * @link http://zwiicms.com/
@@ -69,13 +69,11 @@ class newsAdm extends core
 				'label' => 'Titre de la news',
 				'required' => true
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::textarea('content', [
 				'class' => 'editor'
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::submit('submit', [
 				'value' => 'Créer',
 				'col' => 2,
@@ -103,18 +101,19 @@ class newsAdm extends core
 		}
 		elseif($this->getPost('submit')) {
 			$key = $this->getPost('title') ? $this->getPost('title', helpers::URL) : $this->getUrl(3);
+			$date = $this->getData($this->getUrl(1), $this->getUrl(3), 'date');
 			if($key !== $this->getUrl(3)) {
 				$key = helpers::increment($key, $this->getData($this->getUrl(1)));
 				$this->removeData($this->getUrl(1), $this->getUrl(3));
 			}
 			$this->setData($this->getUrl(1), $key, [
 				'title' => $this->getPost('title', helpers::STRING),
-				'date' => $this->getData($this->getUrl(1), $this->getUrl(3), 'date'),
+				'date' => $date,
 				'content' => $this->getPost('content')
 			]);
 			$this->saveData();
 			$this->setNotification('News modifiée avec succès !');
-			helpers::redirect($this->getUrl());
+			helpers::redirect('module/' . $this->getUrl(1) . '/' . $this->getUrl(2) . '/' . $key);
 		}
 		self::$content =
 			template::openForm() .
@@ -124,14 +123,12 @@ class newsAdm extends core
 				'value' => $this->getData($this->getUrl(1), $this->getUrl(3), 'title'),
 				'required' => true
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::textarea('content', [
 				'class' => 'editor',
 				'value' => $this->getData($this->getUrl(1), $this->getUrl(3), 'content')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::button('back', [
 				'value' => 'Retour',
 				'href' => '?module/' . $this->getUrl(1),

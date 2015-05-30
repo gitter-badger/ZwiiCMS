@@ -6,7 +6,7 @@
  * For full copyright and license information, please see the LICENSE
  * file that was distributed with this source code.
  *
- * @author Rémi Jean <remi-jean@outlook.com>
+ * @author Rémi Jean <remi.jean@outlook.com>
  * @copyright Copyright (C) 2008-2015, Rémi Jean
  * @license GNU General Public License, version 3
  * @link http://zwiicms.com/
@@ -34,8 +34,7 @@ class redirectionAdm extends core
 				'label' => 'URL de redirection',
 				'value' => $this->getData($this->getUrl(1), 'url')
 			]) .
-			template::closeRow() .
-			template::openRow() .
+			template::newRow() .
 			template::button('back', [
 				'value' => 'Retour',
 				'href' => '?edit/' . $this->getUrl(1),

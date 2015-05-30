@@ -17,7 +17,7 @@ $(window).on('beforeunload', function() {
 	}
 });
 form.submit(function() {
-	$(window).unbind('beforeunload');
+	$(window).off('beforeunload');
 });
 
 /**
@@ -25,11 +25,32 @@ form.submit(function() {
  */
 var menu = $('#menu');
 
-$('#toggle').click(function() {
+$('#toggle').on('click', function() {
 	menu.slideToggle();
 });
 $(window).on('resize', function() {
 	if($(window).width() > 768) {
 		menu.css('display', '');
+	}
+});
+
+/**
+ * Verrouille l'administration de module après un changement
+ */
+var module = $('#module');
+var oldModule = module.val();
+
+module.on('change', function() {
+	var newModule = module.val();
+	var config = $('#config');
+
+	if(newModule != '' && newModule == oldModule) {
+		config.removeClass('disabled');
+	}
+	else {
+		if(newModule != '') {
+			alert('Pour accéder à l\'administration du nouveau module vous devez enregistrer les modifications de la page !');
+		}
+		config.addClass('disabled');
 	}
 });
